@@ -10,6 +10,8 @@ pygame.font.init()
 WIN_WIDTH = 600
 WIN_HEIGHT = 800
 
+GEN = 0
+
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Flappy Bird")
 
@@ -95,7 +97,7 @@ class Bird:
 
 
 class Pipe:
-    GAP = 200
+    GAP = 180
     VEL = 5
 
     def __init__(self, x):
@@ -165,13 +167,20 @@ class Base:
         win.blit(self.IMG, (self.x2, self.y))
 
 
-def draw_window(win, birds, pipes, base, score):
+def draw_window(win, birds, pipes, base, score, gen):
     win.blit(BG_IMG, (0, 0))
     for pipe in pipes:
         pipe.draw(win)
 
-    text = STAT_FONT.render('Score: ', str(score), 1, (255, 255, 255))
-    win.blit(text, (WIN_WIDTH-10-text.get_width(), 10))
+    score_label = STAT_FONT.render("Score: " + str(score), 1, (255, 255, 255))
+    win.blit(score_label, (WIN_WIDTH - score_label.get_width() - 15, 30))
+
+    gen_label = STAT_FONT.render("Gen: " + str(gen), 1, (255, 255, 255))
+    win.blit(gen_label, (20, 30))
+
+    birds_label = STAT_FONT.render(
+        "Birds: " + str(len(birds)), 1, (255, 255, 255))
+    win.blit(birds_label, (20, 60))
 
     base.draw(win)
     for bird in birds:
@@ -181,6 +190,8 @@ def draw_window(win, birds, pipes, base, score):
 
 
 def main(genomes, config):
+    global GEN
+    GEN += 1
     nets = []
     ge = []
     birds = []
@@ -247,7 +258,6 @@ def main(genomes, config):
 
         if add_pipe:
             score += 1
-            print(score)
             for g in ge:
                 g.fitness += 5
             pipes.append(Pipe(600))
@@ -262,7 +272,7 @@ def main(genomes, config):
                 ge.pop(x)
 
         base.move()
-        draw_window(win, birds, pipes, base, score)
+        draw_window(win, birds, pipes, base, score, GEN)
 
 
 def run(config_path):
